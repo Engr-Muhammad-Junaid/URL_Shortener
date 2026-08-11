@@ -55,15 +55,18 @@ def redirect_url(request: Request, short_code: str, db: Session = Depends(get_db
     logger.info(f"Redirecting {short_code} → {url.original_url} (clicks: {url.clicks})")
     return RedirectResponse(url=url.original_url)
 
-
 # 30 requests per minute per IP
 @router.get("/urls/all", response_model=list[schemas.URLResponse])
 @limiter.limit("30/minute")
-def get_all_urls(request: Request, db: Session = Depends(get_db)):
-    urls = db.query(models.URL).all()
-    logger.info(f"Fetched all URLs: {len(urls)} records")
+def get_all_urls(
+    request: Request,
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 10
+):
+    urls = db.query(models.URL).offset(skip).limit(limit).all()
+    logger.info(f"Fetched URLs: skip={skip} limit={limit} returned={len(urls)}")
     return urls
-
 
 # 10 deletes per minute per IP
 @router.delete("/urls/{id}")

@@ -7,6 +7,8 @@ from app.routers import urls
 from app.config import settings
 from app.logger import setup_logger
 from app.limiter import limiter
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.exceptions import (
     AppException,
     app_exception_handler,
@@ -22,6 +24,16 @@ app = FastAPI(
     description="A production-ready URL shortener API",
     version="1.0.0"
 )
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Attach limiter to app
 app.state.limiter = limiter
