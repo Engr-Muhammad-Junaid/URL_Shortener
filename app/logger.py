@@ -1,3 +1,4 @@
+import os
 import sys
 from loguru import logger
 
@@ -14,14 +15,16 @@ def setup_logger():
         colorize=True
     )
 
-    # File logger — saved to disk for production
-    logger.add(
-        "logs/app.log",
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {module}:{line} | {message}",
-        level="INFO",
-        rotation="10 MB",    # new file when this one hits 10MB
-        retention="30 days", # delete logs older than 30 days
-        compression="zip"    # compress old log files
-    )
+    # Vercel functions have a read-only application filesystem and collect
+    # stdout automatically. Local and Docker deployments retain file logs.
+    if not os.getenv("VERCEL"):
+        logger.add(
+            "logs/app.log",
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {module}:{line} | {message}",
+            level="INFO",
+            rotation="10 MB",
+            retention="30 days",
+            compression="zip",
+        )
 
     return logger

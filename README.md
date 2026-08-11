@@ -63,3 +63,16 @@ repository and enter these secret environment values when prompted:
 Render generates `SESSION_SECRET`, runs Alembic migrations during container
 startup, checks `/health`, and deploys the `main` branch only after GitHub CI
 passes. Never add `.env`, the Neon URL, or production passwords to GitHub.
+
+## Deploying to Vercel with Neon
+
+Vercel uses `api/index.py` as one FastAPI serverless function and bundles the
+frontend assets through `vercel.json`. Add `DATABASE_URL`, `ADMIN_PASSWORD`,
+`SESSION_SECRET`, `DEBUG=false`, and `APP_NAME` to the Vercel project for the
+Production environment.
+
+Before the first deployment, add the pooled Neon URL to the GitHub repository
+as an Actions secret named `NEON_DATABASE_URL`. Run the **Migrate production
+database** workflow manually from the Actions tab. This keeps database
+credentials out of source control and applies Alembic migrations before the
+application begins receiving requests.
