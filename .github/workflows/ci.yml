@@ -1,0 +1,58 @@
+name: CI
+
+# When does this run?
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Spin up a PostgreSQL container for tests
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: urlshortener_test
+        ports:
+          - 5432:5432
+        # Wait until postgres is ready before running tests
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+
+      # Step 1 — checkout your code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2 — setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Step 3 — cache pip packages (faster builds)
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      # Step 4 — install dependencies
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Step 5 — run tests
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/urlshortener_test
+        run: pytest tests/ -v
