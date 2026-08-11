@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Create, manage, and track short links." />
+    <title>Snip — URL Shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body class="public-page">
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <header class="site-header shell">
+      <a class="brand" href="/" aria-label="Snip home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span>snip</span>
+      </a>
+      <div class="header-actions">
+        <div class="api-state" id="apiState"><span class="state-dot"></span><span>Checking API</span></div>
+        <button class="logout-button" id="logoutButton" type="button">Log out</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero shell">
+        <div class="eyebrow"><span>✦</span> Simple links. Clear insights.</div>
+        <h1>Shorten the link.<br /><em>Keep the impact.</em></h1>
+        <p class="hero-copy">Turn unwieldy URLs into clean, shareable links—and see exactly how often they get clicked.</p>
+
+        <form class="shorten-form" id="shortenForm" novalidate>
+          <label class="sr-only" for="urlInput">Long URL</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4 4 0 0 0 5.66 0l2.12-2.12a4 4 0 0 0-5.66-5.66l-1.21 1.21m1.89 3.77a4 4 0 0 0-5.66 0l-2.12 2.12a4 4 0 0 0 5.66 5.66l1.2-1.2"/></svg>
+            <input id="urlInput" name="url" type="url" inputmode="url" autocomplete="url" placeholder="Paste your long URL here..." required />
+          </div>
+          <button class="primary-button" type="submit"><span>Shorten link</span><span aria-hidden="true">→</span></button>
+        </form>
+        <p class="form-message" id="formMessage" role="alert"></p>
+
+        <div class="result-card" id="resultCard" hidden>
+          <div>
+            <span class="result-label">Your new short link</span>
+            <a id="resultLink" href="#" target="_blank" rel="noopener"></a>
+          </div>
+          <button class="copy-button" id="copyResult" type="button">Copy link</button>
+        </div>
+      </section>
+
+      <section class="dashboard shell" id="ownerDashboard" aria-labelledby="linksHeading">
+        <div class="section-heading">
+          <div>
+            <span class="kicker">Your workspace</span>
+            <h2 id="linksHeading">Recent links</h2>
+          </div>
+          <button class="refresh-button" id="refreshButton" type="button" title="Refresh links" aria-label="Refresh links">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5m-5 4a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg>
+          </button>
+        </div>
+
+        <div class="stats" aria-label="Link statistics">
+          <article><span>Total links</span><strong id="totalLinks">—</strong></article>
+          <article><span>Total clicks</span><strong id="totalClicks">—</strong></article>
+          <article><span>Top link</span><strong class="top-link" id="topLink">—</strong></article>
+        </div>
+
+        <div class="links-panel">
+          <div class="loading-state" id="loadingState"><span class="spinner"></span>Loading your links...</div>
+          <div class="empty-state" id="emptyState" hidden>
+            <div class="empty-icon">↗</div>
+            <h3>No short links yet</h3>
+            <p>Create your first one above. It’ll appear right here.</p>
+          </div>
+          <div class="table-wrap" id="tableWrap" hidden>
+            <table>
+              <thead><tr><th>Short link</th><th>Destination</th><th>Created</th><th>Clicks</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="linksBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <footer class="shell" id="ownerFooter"><span>Built for links that go places.</span><a href="/docs">API docs ↗</a></footer>
+  </body>
+</html>

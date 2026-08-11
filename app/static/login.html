@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Owner login — Snip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/login.js" defer></script>
+  </head>
+  <body class="login-page">
+    <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+    <main class="login-shell">
+      <a class="brand" href="/" aria-label="Snip home"><span class="brand-mark" aria-hidden="true"><span></span><span></span></span><span>snip</span></a>
+      <section class="login-card">
+        <span class="login-lock" aria-hidden="true">⌁</span>
+        <span class="kicker">Owner access</span>
+        <h1>Welcome back.</h1>
+        <p>Enter your admin password to see link analytics and controls.</p>
+        <form id="loginForm">
+          <label for="password">Admin password</label>
+          <input id="password" type="password" autocomplete="current-password" required autofocus />
+          <button class="primary-button" type="submit"><span>Open dashboard</span><span>→</span></button>
+          <div class="form-message" id="loginMessage" role="alert"></div>
+        </form>
+      </section>
+      <a class="back-link" href="/">← Back to public shortener</a>
+    </main>
+  </body>
+</html>

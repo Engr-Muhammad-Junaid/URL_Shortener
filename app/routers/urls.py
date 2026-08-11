@@ -8,6 +8,7 @@ from app.database import get_db
 from app import models, schemas
 from app.exceptions import AppException
 from app.limiter import limiter
+from app.auth import require_admin
 
 router = APIRouter()
 
@@ -60,6 +61,7 @@ def redirect_url(request: Request, short_code: str, db: Session = Depends(get_db
 @limiter.limit("30/minute")
 def get_all_urls(
     request: Request,
+    _: None = Depends(require_admin),
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 10
@@ -71,7 +73,12 @@ def get_all_urls(
 # 10 deletes per minute per IP
 @router.delete("/urls/{id}")
 @limiter.limit("10/minute")
-def delete_url(request: Request, id: int, db: Session = Depends(get_db)):
+def delete_url(
+    request: Request,
+    id: int,
+    _: None = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
     url = db.query(models.URL).filter(models.URL.id == id).first()
 
     if not url:

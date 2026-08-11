@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import Base, get_db
+from app.auth import COOKIE_NAME, create_session_token
 
 # --- Test database (separate from your real one) ---
 import os
@@ -40,11 +41,35 @@ def client(db):
             db.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    yield TestClient(app)
+    test_client = TestClient(app, base_url="https://testserver")
+    test_client.cookies.set(COOKIE_NAME, create_session_token(), path="/")
+    yield test_client
     app.dependency_overrides.clear()
 
 
 # --- Tests ---
+
+def test_owner_routes_require_login(client):
+    client.cookies.clear()
+    assert client.get("/dashboard", follow_redirects=False).status_code == 303
+    assert client.get("/urls/all").status_code == 401
+    assert client.delete("/urls/999").status_code == 401
+
+
+def test_admin_rejects_wrong_password(client):
+    client.cookies.clear()
+    response = client.post("/admin/login", json={"password": "wrong-password"})
+    assert response.status_code == 401
+
+
+def test_admin_can_login_and_logout(client):
+    client.cookies.clear()
+    login = client.post("/admin/login", json={"password": "test-admin-password"})
+    assert login.status_code == 200
+    assert client.get("/dashboard").status_code == 200
+    assert client.post("/admin/logout").status_code == 200
+    assert client.get("/dashboard", follow_redirects=False).status_code == 303
+
 
 def test_create_url(client):
     response = client.post("/urls", json={
