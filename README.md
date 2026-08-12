@@ -66,8 +66,8 @@ passes. Never add `.env`, the Neon URL, or production passwords to GitHub.
 
 ## Deploying to Vercel with Neon
 
-Vercel uses `api/index.py` as one FastAPI serverless function and bundles the
-frontend assets through `vercel.json`. Add `DATABASE_URL`, `ADMIN_PASSWORD`,
+Vercel uses the root `index.py` as one zero-configuration FastAPI function.
+Add `DATABASE_URL`, `ADMIN_PASSWORD`,
 `SESSION_SECRET`, `DEBUG=false`, and `APP_NAME` to the Vercel project for the
 Production environment.
 
