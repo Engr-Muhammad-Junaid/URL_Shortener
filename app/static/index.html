@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Create, manage, and track short links." />
+    <link rel="icon" href="/favicon.ico" />
     <title>Snip — URL Shortener</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -56,9 +57,12 @@
             <span class="kicker">Your workspace</span>
             <h2 id="linksHeading">Recent links</h2>
           </div>
-          <button class="refresh-button" id="refreshButton" type="button" title="Refresh links" aria-label="Refresh links">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5m-5 4a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg>
-          </button>
+          <div class="dashboard-actions">
+            <button class="cleanup-button" id="cleanupButton" type="button">Clean old links</button>
+            <button class="refresh-button" id="refreshButton" type="button" title="Refresh links" aria-label="Refresh links">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5m-5 4a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg>
+            </button>
+          </div>
         </div>
 
         <div class="stats" aria-label="Link statistics">

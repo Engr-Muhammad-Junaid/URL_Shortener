@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import Base, get_db
 from app.auth import COOKIE_NAME, create_session_token
+from app.limiter import limiter
 
 # --- Test database (separate from your real one) ---
 import os
@@ -34,6 +35,8 @@ def db():
 # --- Override the real DB with the test DB ---
 @pytest.fixture(scope="function")
 def client(db):
+    limiter._storage.reset()
+
     def override_get_db():
         try:
             yield db
@@ -90,6 +93,27 @@ def test_create_url_invalid(client):
     assert response.status_code == 422  # Pydantic validation error
 
 
+@pytest.mark.parametrize("destination", [
+    "http://localhost:8000/admin",
+    "http://127.0.0.1/private",
+    "http://10.0.0.1/private",
+    "http://169.254.169.254/latest/meta-data",
+    "https://user:password@example.com/private",
+])
+def test_create_url_rejects_unsafe_destination(client, destination):
+    response = client.post("/urls", json={"original_url": destination})
+    assert response.status_code == 422
+
+
+def test_create_url_reuses_existing_destination(client):
+    first = client.post("/urls", json={"original_url": "https://example.com/page"})
+    second = client.post("/urls", json={"original_url": "https://example.com/page"})
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert first.json()["id"] == second.json()["id"]
+    assert first.json()["short_code"] == second.json()["short_code"]
+
+
 def test_redirect_url(client):
     # First create a URL
     create = client.post("/urls", json={
@@ -115,6 +139,28 @@ def test_get_all_urls(client):
     response = client.get("/urls/all")
     assert response.status_code == 200
     assert len(response.json()) == 2
+
+
+def test_paginated_url_list(client):
+    client.post("/urls", json={"original_url": "https://www.google.com"})
+    client.post("/urls", json={"original_url": "https://www.github.com"})
+    response = client.get("/admin/urls?page=1&page_size=1")
+    assert response.status_code == 200
+    assert response.json()["total"] == 2
+    assert response.json()["pages"] == 2
+    assert len(response.json()["items"]) == 1
+
+
+def test_admin_cleanup_requires_login(client):
+    client.cookies.clear()
+    response = client.post("/admin/urls/cleanup", json={"older_than_days": 30})
+    assert response.status_code == 401
+
+
+def test_favicon_is_not_treated_as_short_code(client):
+    response = client.get("/favicon.ico")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("image/svg+xml")
 
 
 def test_delete_url(client):

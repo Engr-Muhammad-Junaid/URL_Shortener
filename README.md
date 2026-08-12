@@ -7,7 +7,6 @@ from a protected owner dashboard.
 ## Live application
 
 - **Public shortener:** https://url-shortener-aic-oder.vercel.app
-- **Owner login:** https://url-shortener-aic-oder.vercel.app/login
 - **Health check:** https://url-shortener-aic-oder.vercel.app/health
 
 The dashboard requires the private production `ADMIN_PASSWORD` and is available
@@ -25,6 +24,16 @@ at `/dashboard` after authentication.
 - GitHub Actions (CI/CD)
 - Loguru (logging)
 - SlowAPI (rate limiting)
+
+## Features
+
+- Public URL shortening with duplicate-link reuse
+- Click tracking and redirects
+- Password-protected owner dashboard and private management APIs
+- Pagination metadata and owner cleanup endpoint
+- Rejection of local, private-network, reserved-IP, and credential-bearing URLs
+- Per-instance request rate limits
+- Responsive interface and favicon
 
 ## Getting Started
 
@@ -52,7 +61,9 @@ uvicorn app.main:app --reload
 |--------|----------------|---------------------|--------------|
 | POST   | /urls          | Create short URL    | 10/minute    |
 | GET    | /{short_code}  | Redirect to URL     | 30/minute    |
-| GET    | /urls/all      | List all URLs       | 30/minute    |
+| GET    | /admin/urls    | Paginated owner list| 30/minute    |
+| POST   | /admin/urls/cleanup | Delete old links | 2/minute     |
+| GET    | /urls/all      | Legacy owner list   | 30/minute    |
 | DELETE | /urls/{id}     | Delete a URL        | 10/minute    |
 | GET    | /health        | Health check        | Unlimited    |
 
@@ -116,6 +127,12 @@ Every push and pull request to `main` runs pytest plus Python and JavaScript
 syntax checks. A push to `main` also triggers a Vercel production deployment.
 The `.env` file and production credentials must never be committed.
 
+> **Serverless rate-limit note:** SlowAPI limits requests within each Vercel
+> function instance. A globally consistent limit across every instance requires
+> a shared store such as managed Redis. The current limit is suitable for this
+> portfolio deployment, but a shared limiter is recommended before handling
+> untrusted high-volume traffic.
+
 ### Normal code changes
 
 Changes that do not modify the database schema need only the normal Git flow:
@@ -144,6 +161,13 @@ Review the generated migration before committing it. For production, use a
 backward-compatible migration first, push it, and run **Migrate production
 database** from GitHub Actions. Push application code that requires the new
 schema only after the production migration succeeds.
+
+## Repository security checklist
+
+For a public repository, enable GitHub secret scanning/push protection,
+Dependabot alerts, and a `main` branch ruleset that requires the CI workflow and
+blocks force pushes. These controls are configured in GitHub repository
+settings, not in application source code.
 
 ## License
 

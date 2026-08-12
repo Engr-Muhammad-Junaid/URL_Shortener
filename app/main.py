@@ -116,6 +116,12 @@ def health_check():
     }
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#635bff"/><path d="M24 36l-4 4a9 9 0 0013 13l7-7a9 9 0 000-13" fill="none" stroke="white" stroke-width="6" stroke-linecap="round"/><path d="M40 28l4-4a9 9 0 00-13-13l-7 7a9 9 0 000 13" fill="none" stroke="#ff9abc" stroke-width="6" stroke-linecap="round"/></svg>"""
+    return Response(content=svg, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
+
+
 # Keep the catch-all /{short_code} router after fixed application routes.
 app.include_router(urls.router)
 

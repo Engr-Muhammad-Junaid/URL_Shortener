@@ -7,6 +7,7 @@ const elements = {
   copyResult: document.querySelector("#copyResult"),
   apiState: document.querySelector("#apiState"),
   refresh: document.querySelector("#refreshButton"),
+  cleanup: document.querySelector("#cleanupButton"),
   loading: document.querySelector("#loadingState"),
   empty: document.querySelector("#emptyState"),
   table: document.querySelector("#tableWrap"),
@@ -111,8 +112,8 @@ async function loadLinks({ quiet = false } = {}) {
     elements.table.hidden = true;
   }
   try {
-    const links = await request("/urls/all?limit=100");
-    renderLinks(links);
+    const result = await request("/admin/urls?page=1&page_size=100");
+    renderLinks(result.items);
   } catch (error) {
     elements.loading.hidden = true;
     elements.empty.hidden = false;
@@ -128,6 +129,28 @@ async function deleteLink(id, row) {
     row.remove();
     toast("Short link deleted");
     if (isOwnerDashboard) await loadLinks({ quiet: true });
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function cleanupLinks() {
+  const rawDays = window.prompt("Delete links older than how many days?", "30");
+  if (rawDays === null) return;
+  const days = Number(rawDays);
+  if (!Number.isInteger(days) || days < 1 || days > 3650) {
+    toast("Enter a whole number from 1 to 3650");
+    return;
+  }
+  if (!window.confirm(`Delete every link older than ${days} days?`)) return;
+  try {
+    const result = await request("/admin/urls/cleanup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ older_than_days: days }),
+    });
+    toast(`${result.deleted} old link${result.deleted === 1 ? "" : "s"} deleted`);
+    await loadLinks();
   } catch (error) {
     toast(error.message);
   }
@@ -171,6 +194,7 @@ elements.form.addEventListener("submit", async (event) => {
 
 elements.copyResult.addEventListener("click", () => copy(elements.resultLink.href));
 elements.refresh.addEventListener("click", () => loadLinks());
+elements.cleanup.addEventListener("click", cleanupLinks);
 elements.logout.addEventListener("click", async () => {
   await fetch("/admin/logout", { method: "POST" });
   window.location.replace("/login");

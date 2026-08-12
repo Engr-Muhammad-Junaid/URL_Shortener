@@ -63,6 +63,16 @@ jobs:
           DEBUG: "false"
         run: pytest tests/ -v
 
+      - name: Test migrations from an empty database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/urlshortener_test
+          ADMIN_PASSWORD: test-admin-password
+          SESSION_SECRET: test-session-secret
+          DEBUG: "false"
+        run: |
+          alembic upgrade head
+          alembic current
+
       - name: Validate Python and frontend syntax
         run: |
           python -m compileall -q app
