@@ -35,7 +35,7 @@ jobs:
 
       # Step 1 — checkout your code
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Step 2 — setup Python
       - name: Set up Python
