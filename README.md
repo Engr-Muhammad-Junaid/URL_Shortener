@@ -144,3 +144,7 @@ Review the generated migration before committing it. For production, use a
 backward-compatible migration first, push it, and run **Migrate production
 database** from GitHub Actions. Push application code that requires the new
 schema only after the production migration succeeds.
+
+## License
+
+This project is available under the [MIT License](LICENSE).
