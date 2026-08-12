@@ -45,7 +45,7 @@ jobs:
 
       # Step 3 — cache pip packages (faster builds)
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
